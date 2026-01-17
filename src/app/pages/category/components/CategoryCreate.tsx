@@ -101,9 +101,6 @@ const CategoryCreate: React.FC<CategoryCreateProps> = ({ setPage }) => {
 
               {/* Image Upload */}
               <div className="mb-5">
-                <label className="inline-block mb-2 text-sm font-medium text-default-800">
-                  Category Image
-                </label>
                 <ImageUpload />
               </div>
 
