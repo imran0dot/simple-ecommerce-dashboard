@@ -1,64 +1,56 @@
-import React, { useState } from 'react';
-import { LuCloudUpload } from 'react-icons/lu';
+
+import React, { useState } from "react";
+import UploadImage from "../../../../components/media/ImageUpload"
+import { FileFormatter } from "@/utils/FileFormatter";
+import Button from "@/components/Button";
+
+interface CustomFile extends File {
+  preview: string;
+  formattedSize: string;
+}
 
 const ImageUpload = () => {
-  const [files, setFiles] = useState<File[]>([]);
+  const [categoryImages, setCategoryImages] = useState<CustomFile[]>([]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setFiles(Array.from(e.target.files));
-    }
+  const handleThumbnail = (files: File[]) => {
+    if (!files?.length) return;
+
+    const newFormattedFiles: CustomFile[] = files.map((file) => 
+      Object.assign(file, {
+        preview: URL.createObjectURL(file),
+        formattedSize: FileFormatter.formatBytes(file.size),
+      })
+    );
+
+    setCategoryImages((prevImages) => [...prevImages, ...newFormattedFiles]);
   };
-  const handleRemove = (index: number) => {
-    setFiles(prev => prev.filter((_, i) => i !== index));
+
+  const handleRemove = (fileToRemove: CustomFile) => {
+    setCategoryImages((prevImages) => 
+      prevImages.filter((file) => file !== fileToRemove)
+    );
   };
+
 
   return (
-    <div className="grid grid-cols-1 mb-5">
-      <h6 className="mb-2 font-semibold text-sm text-default-800">Product Images</h6>
+    <React.Fragment>
 
-      <label
-        htmlFor="fileUpload"
-        className="flex flex-col items-center justify-center bg-transparent border border-dashed rounded-md cursor-pointer border-default-300 p-6 hover:bg-default-100 transition"
-      >
-        <LuCloudUpload className="size-12 text-default-500 mb-2" />
-        <h5 className="mb-0 font-normal text-base text-default-500">
-          Drag and drop your files or <span className="text-primary underline">browse</span>
-        </h5>
-        <input
-          id="fileUpload"
-          type="file"
-          className="hidden"
-          multiple
-          accept="image/*"
-          onChange={handleFileChange}
-        />
-      </label>
+      {/* Product Upload Form */}
+      <div className="bg-white p-0 rounded dark:bg-zink-700">
+        <h5 className="text-15 mb-2">Category Image</h5>
+        <div className="flex flex-col lg:flex-row gap-4 mb-4">
 
-      <ul className="flex flex-wrap gap-5 mt-5">
-        {files.map((file, index) => (
-          <li key={index} className="border rounded border-default-200 p-3 w-32 text-center">
-            <div className="p-2 mx-auto rounded-md size-20 bg-default-200 flex items-center justify-center overflow-hidden">
-              <img
-                src={URL.createObjectURL(file)}
-                alt={file.name}
-                className="w-full h-full object-cover rounded-md"
-              />
-            </div>
-            <div className="pt-2">
-              <h5 className="text-xs truncate">{file.name}</h5>
-              <p className="text-xs text-default-500">{(file.size / 1024).toFixed(1)} KB</p>
-            </div>
-            <button
-              onClick={() => handleRemove(index)}
-              className="mt-2 px-2 py-1 text-xs text-white bg-danger rounded hover:bg-red-600"
-            >
-              Delete
-            </button>
-          </li>
-        ))}
-      </ul>
-    </div>
+          <UploadImage
+            label="Upload Product Thumbnail"
+            multiple={true}
+            selectedFiles={categoryImages}
+            onFilesSelected={handleThumbnail}
+            onFileRemove={handleRemove}
+          />
+        </div>
+        <Button label="Upload" onClick={()=> console.log(categoryImages)}></Button>
+      </div>
+    </React.Fragment>
   );
 };
 
