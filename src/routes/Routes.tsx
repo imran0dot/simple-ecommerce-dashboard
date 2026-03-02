@@ -10,8 +10,9 @@ const ProductList = lazy(() => import('@/app/pages/product-list'));
 const ProductOverview = lazy(() => import('@/app/pages/product-overview'));
 const Sellers = lazy(() => import('@/app/pages/sellers'));
 const Category = lazy(() => import('@/app/pages/category'));
+const Media = lazy(() => import('@/app/pages/media'));
 
-// dashboard
+// dashboardcategory
 const Ecommerce = lazy(() => import('@/app/(admin)/(dashboards)/index'));
 //Other
 
@@ -30,6 +31,7 @@ export const layoutsRoutes = [
   { path: '/product-overview', name: 'ProductOverview', element: <ProductOverview /> },
   { path: '/sellers', name: 'Sellers', element: <Sellers /> },
   { path: '/category', name: 'Category', element: <Category /> },
+  {path: '/media', name: 'Media', element: <Media />}
 ];
 
 export const singlePageRoutes = [

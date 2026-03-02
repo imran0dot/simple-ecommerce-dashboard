@@ -1,9 +1,10 @@
 import { useForm } from 'react-hook-form';
-import ImageUpload from './ImageUpload';
 import PageBreadcrumb from '@/components/PageBreadcrumb';
 import { useCreateCategoryMutation } from '@/redux/services/category';
 import { useState } from 'react';
 import { LuLoader } from 'react-icons/lu';
+import Modal from '@/components/modal';
+import MediaSelect from '@/components/Media/MediaSelect';
 
 type CategoryFormInputs = {
   name: string;
@@ -23,6 +24,7 @@ interface CategoryCreateProps {
 
 const CategoryCreate: React.FC<CategoryCreateProps> = ({ setPage }) => {
   const [loading, setLoading] = useState(false);
+  const [isImageModal, setIsImageModal] = useState(false);
   const [createCategory] = useCreateCategoryMutation();
   const {
     register,
@@ -96,12 +98,33 @@ const CategoryCreate: React.FC<CategoryCreateProps> = ({ setPage }) => {
                   <option value="true">Live / Published</option>
                   <option value="false">Hidden / Draft</option>
                 </select>
-                  {errors.isLive && <p className="text-danger text-sm">{errors.isLive.message}</p>}
+                {errors.isLive && <p className="text-danger text-sm">{errors.isLive.message}</p>}
               </div>
 
               {/* Image Upload */}
               <div className="mb-5">
-                <ImageUpload />
+                <label className="inline-block mb-2 text-sm font-medium text-default-800">
+                  Category Image
+                </label>
+                <button
+                  onClick={() => {
+                    setIsImageModal(true);
+                  }}
+                >
+                  Select Category Image
+                </button>
+                <Modal
+                  onCancel={setIsImageModal}
+                  isOpen={isImageModal}
+                  header={<>cut</>}
+                  footer={
+                    <>
+                      <button>Confirm</button>
+                    </>
+                  }
+                >
+                  <MediaSelect selectionMode='single'  />
+                </Modal>
               </div>
 
               {/* Description */}

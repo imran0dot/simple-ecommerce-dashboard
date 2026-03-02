@@ -2,8 +2,8 @@ import axios from 'axios';
 
 export const axiosInstance = axios.create({
   baseURL: 'http://localhost:5000/api/v1',
-  timeout: 5000,
-  headers: { 'Content-Type': 'application/json' },
+  // timeout: 60000,
+  // headers: { 'Content-Type': 'application/json' },
 });
 
 export const setupAxiosInterceptors = (getToken: () => Promise<string | null>) => {

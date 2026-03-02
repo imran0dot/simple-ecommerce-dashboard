@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { LuChevronRight } from 'react-icons/lu';
 import { menuItemsData, type MenuItemType } from './menu';
+import { useState } from 'react';
 
 const isItemActive = (item: MenuItemType, pathname: string): boolean => {
   if (item.href && pathname === item.href) return true;
@@ -12,29 +13,28 @@ const isItemActive = (item: MenuItemType, pathname: string): boolean => {
 
 const MenuItemWithChildren = ({ item }: { item: MenuItemType }) => {
   const { pathname } = useLocation();
+  const [isOpen, setIsOpen] = useState(false);
   const Icon = item.icon;
 
   const isActive = isItemActive(item, pathname);
 
   return (
     <li className={`menu-item hs-accordion ${isActive ? 'active' : ''}`}>
-      <button
-        className={`hs-accordion-toggle menu-link ${isActive ? 'active' : ''}`}
-      >
+      <button className={`hs-accordion-toggle menu-link ${isActive ? 'active' : ''}`}>
         {Icon && (
           <span className="menu-icon">
             <Icon />
           </span>
         )}
         <span className="menu-text">{item.label}</span>
-        <span className="menu-arrow">
+        <span className="menu-arrow" onClick={() => setIsOpen(prev => !prev)}>
           <LuChevronRight />
         </span>
       </button>
 
       <ul
         className={`sub-menu hs-accordion-content hs-accordion-group ${
-          isActive ? 'block' : 'hidden'
+          isOpen ? 'block' : 'hidden'
         }`}
       >
         {item.children?.map((child: MenuItemType) =>
