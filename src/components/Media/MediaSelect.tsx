@@ -2,7 +2,6 @@
 import { LuCheck, LuRotateCcw } from 'react-icons/lu';
 import { useGetMediasQuery } from '@/redux/services/media';
 import { useEffect, useState } from 'react';
-import { TbReload } from 'react-icons/tb';
 import FetchLoader from '@/components/FetchLoader';
 
 interface PaginationMeta {
@@ -13,7 +12,7 @@ interface PaginationMeta {
 }
 
 interface MediaSelectProps {
-  onSelectionChange?: (urls: string[]) => string[];
+  onSelectionChange?: (urls: string[]) => void;
   selectionMode?: 'single' | 'multiple';
 }
 
@@ -25,10 +24,9 @@ const MediaSelect: React.FC<MediaSelectProps> = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [medias, setMedias] = useState<any[]>([]);
   const [meta, setMeta] = useState<PaginationMeta>({});
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const [selectedUrls, setSelectedUrls] = useState<string[]>([]);
 
-  const { data, isLoading, isFetching, refetch } = useGetMediasQuery({
+  const { data, isLoading, isFetching } = useGetMediasQuery({
     page: currentPage,
     limit: limit,
   });
@@ -43,23 +41,6 @@ const MediaSelect: React.FC<MediaSelectProps> = ({
     }
     if (data?.meta) setMeta(data.meta);
   }, [data, currentPage]);
-
-  const setSelection = () => {
-    if (onSelectionChange) {
-      onSelectionChange(selectedUrls);
-    }
-  };
-
-  const onRefetch = async () => {
-    setIsRefreshing(true);
-    setCurrentPage(1);
-    setSelectedUrls([]); // Refresh korle selection clear kora better
-    try {
-      await refetch().unwrap();
-    } finally {
-      setTimeout(() => setIsRefreshing(false), 600);
-    }
-  };
 
   // --- Flexible Selection Logic ---
   const handleToggleSelect = (url: string) => {
@@ -78,48 +59,24 @@ const MediaSelect: React.FC<MediaSelectProps> = ({
     }
   };
 
+  useEffect(() => {
+    if (onSelectionChange) {
+      onSelectionChange(selectedUrls);
+    }
+  }, [onSelectionChange, selectedUrls]);
+
   if (isLoading && currentPage === 1) return <FetchLoader />;
 
   return (
     <main>
-      <div className="card shadow-sm mb-5">
-        {/* Header */}
-        <div className="card-header flex flex-wrap justify-between items-center bg-transparent border-b border-default-200 py-4 px-5 gap-4">
-          <div>
-            <h4 className="card-title text-default-900 font-bold">
-              Select Media {selectionMode === 'single' ? '(Single)' : '(Multiple)'}
-            </h4>
-            <p className="text-xs text-default-500 mt-1">
-              {selectedUrls.length} {selectedUrls.length > 1 ? 'items' : 'item'} selected
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              onClick={onRefetch}
-              type="button"
-              className={`p-2 rounded-full hover:bg-default-100 ${isRefreshing ? 'animate-spin' : ''}`}
-            >
-              <TbReload size={20} className="text-default-600" />
-            </button>
-
-            <button
-              disabled={selectedUrls.length === 0}
-              onClick={setSelection}
-              className="btn btn-sm bg-primary text-white flex items-center gap-1 disabled:opacity-50"
-            >
-              <LuCheck size={18} /> Confirm Selection
-            </button>
-          </div>
-        </div>
-
+      <div className="">
         {/* Grid Area */}
-        <div className="p-5">
+        <div className="">
           {medias.length === 0 && !isLoading ? (
             <div className="py-20 text-center text-default-500">No media files found.</div>
           ) : (
             <>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
                 {medias.map((item, idx) => {
                   const imageUrl = item.secure_url || item.url;
                   const isSelected = selectedUrls.includes(imageUrl);

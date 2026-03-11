@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export type BrandFormInputs = {
   name: string;
   slug: string;
@@ -14,3 +15,19 @@ export type BrandCreateProps = {
     }>
   >;
 };
+
+export interface PaginationMeta {
+  total?: number;
+  page?: number;
+  limit?: number;
+  totalPages?: number;
+}
+
+export interface BrandListProps {
+  setPage: React.Dispatch<
+    React.SetStateAction<{
+      data: any | null;
+      action: string;
+    }>
+  >;
+}

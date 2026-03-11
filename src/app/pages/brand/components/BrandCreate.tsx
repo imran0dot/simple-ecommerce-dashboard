@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 
 const CategoryCreate: React.FC<BrandCreateProps> = ({ setPage }) => {
   const [loading, setLoading] = useState(false);
+  const [image, setImage] = useState<string | null>(null);
   const [isImageModal, setIsImageModal] = useState(false);
   const [createBrand] = useCreateMutation();
   const {
@@ -33,6 +34,15 @@ const CategoryCreate: React.FC<BrandCreateProps> = ({ setPage }) => {
     setPage({ data: null, action: '' });
   };
 
+  const onConfirmSelection = () => {
+    setIsImageModal(false);
+  };
+
+  const onCancelImageModal = () => {
+    setIsImageModal(false);
+    setImage(null);
+  };
+
   // Slug Generate
   const handleSlugify = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
@@ -44,8 +54,12 @@ const CategoryCreate: React.FC<BrandCreateProps> = ({ setPage }) => {
     setLoading(true);
     console.log('===========Set Loading true');
     try {
+      const finalData = {
+        ...data,
+        imageUrl: image,
+      };
       console.log('===========Sending to API');
-      const response = await createBrand(data).unwrap();
+      const response = await createBrand(finalData).unwrap();
       console.log('=========== Response');
       console.log(response);
       console.log('=========== Go Back Page');
@@ -119,6 +133,69 @@ const CategoryCreate: React.FC<BrandCreateProps> = ({ setPage }) => {
                 {errors.isLive && <p className="text-danger text-sm">{errors.isLive.message}</p>}
               </div>
 
+              {/* Select Brand Image */}
+              <div className="mb-5">
+                <label className="inline-block mb-2 text-sm font-medium text-default-800">
+                  Thumbnail
+                </label>
+                <div className="relative group w-72 h-72">
+                  <div className="relative h-full w-full overflow-hidden transition-all duration-300 ease-in-out border-2 border-dashed rounded-3xl bg-slate-50 dark:bg-slate-900 border-slate-300 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50/50 dark:hover:bg-blue-900/20">
+                    {image ? (
+                      <div className="relative h-full w-full">
+                        {/* Main Image */}
+                        <img
+                          src={image}
+                          alt="Preview"
+                          className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
+                        />
+
+                        {/* Glossy Overlay on Hover */}
+                        <div className="absolute inset-0 flex flex-col items-center justify-center transition-opacity duration-300 bg-black/20 dark:bg-black/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100">
+                          <button
+                            onClick={() => setImage(null)}
+                            className="px-4 py-2 text-sm font-semibold text-white transition-transform duration-200 bg-red-500/80 rounded-full hover:bg-red-600 hover:scale-110 shadow-lg backdrop-blur-md"
+                          >
+                            Remove Photo
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      /* Empty State / Upload Trigger */
+                      <button
+                        type="button"
+                        onClick={() => setIsImageModal(true)}
+                        className="flex flex-col items-center justify-center w-full h-full space-y-4 group/btn"
+                      >
+                        <div className="flex items-center justify-center w-16 h-16 transition-all duration-300 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 group-hover/btn:bg-blue-500 group-hover/btn:text-white group-hover/btn:scale-110 shadow-inner">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={2}
+                            stroke="currentColor"
+                            className="w-8 h-8"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M12 4.5v15m7.5-7.5h-15"
+                            />
+                          </svg>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-sm font-semibold text-slate-600 dark:text-slate-200">
+                            Upload Image
+                          </p>
+                          <p className="text-xs text-slate-400 dark:text-slate-500">
+                            JPG, PNG up to 5MB
+                          </p>
+                        </div>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
               {/* Description */}
               <div className="grid grid-cols-1 gap-2 mb-5">
                 <label className="font-semibold text-default-800 text-sm">Description</label>
@@ -153,6 +230,41 @@ const CategoryCreate: React.FC<BrandCreateProps> = ({ setPage }) => {
           </div>
         </div>
       </div>
+
+      <Modal
+        isOpen={isImageModal}
+        onCancel={onCancelImageModal}
+        header="Select Media"
+        size="lg"
+        footer={
+          <div className="flex justify-end gap-3">
+            <button
+              onClick={onCancelImageModal}
+              className="btn bg-primary/10 text-primary hover:bg-primary hover:text-white"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => onConfirmSelection()}
+              disabled={!image}
+              className="btn bg-primary text-white"
+            >
+              Confirm Selection
+            </button>
+          </div>
+        }
+      >
+        <div className="min-h-[400px]">
+          <MediaSelect
+            selectionMode="single"
+            onSelectionChange={images => {
+              if (images && images.length > 0) {
+                setImage(images[0]);
+              }
+            }}
+          />
+        </div>
+      </Modal>
     </main>
   );
 };

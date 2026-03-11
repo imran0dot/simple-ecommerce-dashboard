@@ -1,5 +1,5 @@
 import BrandCreate from './components/BrandCreate';
-import BrandList from './components/BrandList';
+import List from './components/BrandList';
 import BrandUpdate from './components/BrandUpdate';
 
 import { useState } from 'react';
@@ -19,7 +19,7 @@ const Index = () => {
     case 'update':
       return <BrandUpdate setPage={setPage} initialData={page.data} />;
     default:
-      return <BrandList setPage={setPage} />;
+      return <List setPage={setPage} />;
   }
 };
 

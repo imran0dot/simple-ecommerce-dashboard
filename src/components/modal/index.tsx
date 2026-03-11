@@ -1,79 +1,89 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+
+type ModalSize = 'sm' | 'md' | 'lg';
 
 interface ModalProps {
   isOpen: boolean;
-  onCancel: React.Dispatch<React.SetStateAction<boolean>> 
+  onCancel: () => void;
   header: React.ReactNode;
-  footer: React.ReactNode;
+  footer?: React.ReactNode;
   children: React.ReactNode;
+  size?: ModalSize;
 }
 
-const Modal: React.FC<ModalProps> = ({ isOpen, onCancel, header, footer, children }) => {
-  // If the modal isn't open, don't render anything
+const Modal: React.FC<ModalProps> = ({ 
+  isOpen, 
+  onCancel, 
+  header, 
+  footer, 
+  children, 
+  size = 'md' 
+}) => {
+  // Prevent background scrolling when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => { document.body.style.overflow = 'unset'; };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
+  // Map sizes to Tailwind max-width classes
+  const sizeClasses: Record<ModalSize, string> = {
+    sm: 'max-w-md',
+    md: 'max-w-2xl',
+    lg: 'max-w-4xl',
+  };
+
   return (
-    <div style={styles.overlay} onClick={() => onCancel(false)}>
-      {/* stopPropagation prevents closing the modal when clicking inside the content area */}
-      <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
-        <header style={styles.header}>
-          {header}
-          <button style={styles.closeBtn} onClick={() => onCancel(false)}>
-            &times;
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
+      aria-modal="true"
+      role="dialog"
+    >
+      {/* Backdrop */}
+      <div 
+        className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" 
+        onClick={onCancel} 
+      />
+
+      {/* Modal Content */}
+      <div 
+        className={`relative w-full ${sizeClasses[size]} transform overflow-hidden rounded-2xl bg-white dark:bg-slate-900 shadow-2xl transition-all duration-300 ease-out animate-in fade-in zoom-in-95`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 px-6 py-4">
+          <h3 className="text-xl font-semibold text-slate-800 dark:text-white">
+            {header}
+          </h3>
+          <button 
+            onClick={onCancel}
+            className="rounded-full p-1 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
           </button>
-        </header>
+        </div>
 
-        <main style={styles.body}>{children}</main>
+        {/* Body */}
+        <div className="px-6 py-6 text-slate-600 dark:text-slate-400 max-h-[70vh] overflow-y-auto">
+          {children}
+        </div>
 
-        <footer style={styles.footer}>{footer}</footer>
+        {/* Footer */}
+        {footer && (
+          <div className="flex justify-end gap-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/30 px-6 py-4">
+            {footer}
+          </div>
+        )}
       </div>
     </div>
   );
-};
-
-// Basic inline styles for demonstration
-const styles: { [key: string]: React.CSSProperties } = {
-  overlay: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 1000,
-  },
-  modalContent: {
-    backgroundColor: '#fff',
-    padding: '20px',
-    borderRadius: '8px',
-    maxWidth: '500px',
-    width: '90%',
-    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
-  },
-  header: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderBottom: '1px solid #eee',
-    paddingBottom: '10px',
-  },
-  body: {
-    padding: '20px 0',
-  },
-  footer: {
-    borderTop: '1px solid #eee',
-    paddingTop: '10px',
-    textAlign: 'right',
-  },
-  closeBtn: {
-    background: 'none',
-    border: 'none',
-    fontSize: '1.5rem',
-    cursor: 'pointer',
-  },
 };
 
 export default Modal;
