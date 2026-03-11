@@ -1,5 +1,5 @@
 import { Link } from 'react-router';
-import { LuArrowUpLeft, LuChevronRight } from 'react-icons/lu';
+import { LuArrowLeft, LuChevronRight, LuLayoutDashboard } from 'react-icons/lu';
 
 type PageBreadcrumbProps = {
   title: string;
@@ -9,36 +9,45 @@ type PageBreadcrumbProps = {
 
 const PageBreadcrumb = ({ onBack, title, subtitle }: PageBreadcrumbProps) => {
   return (
-    <div className="flex items-center md:justify-between flex-wrap gap-2 mb-4 print:hidden">
-      <h4 className="text-default-900 text-lg font-semibold flex justify-center items-center"> {onBack ? <LuArrowUpLeft onClick={onBack} className='text-primary cursor-pointer' /> : null} {title}</h4>
+    <div className="flex items-center justify-between mb-6 print:hidden">
+      {/* Title Section */}
+      <div className="flex items-center gap-3">
+        {onBack && (
+          <button 
+            onClick={onBack}
+            className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-colors"
+          >
+            <LuArrowLeft size={20} />
+          </button>
+        )}
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+          {title}
+        </h1>
+      </div>
 
-      <div className="md:flex hidden items-center gap-2 text-sm font-semibold">
-        <Link to="/" className="text-sm font-medium text-default-700">
+      {/* Breadcrumb Navigation */}
+      <nav className="hidden md:flex items-center gap-2 text-sm bg-slate-100 dark:bg-slate-800/50 px-3 py-1.5 rounded-lg">
+        <Link 
+          to="/" 
+          className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium"
+        >
+          <LuLayoutDashboard size={14} />
           Dashboard
         </Link>
 
-        <LuChevronRight
-          className="text-sm flex-shrink-0 text-default-500 rtl:rotate-180"
-          size={14}
-        />
+        <LuChevronRight className="text-slate-400" size={16} />
 
         {subtitle && (
           <>
-            <Link to="#" className="text-sm font-medium text-default-700">
-              {subtitle}
-            </Link>
-
-            <LuChevronRight
-              className="text-sm flex-shrink-0 text-default-500 rtl:rotate-180"
-              size={14}
-            />
+            <span className="text-slate-500 dark:text-slate-500 font-medium">{subtitle}</span>
+            <LuChevronRight className="text-slate-400" size={16} />
           </>
         )}
 
-        <Link to="#" className="text-sm font-medium text-default-700" aria-current="page">
+        <span className="text-blue-600 dark:text-blue-400 font-semibold">
           {title}
-        </Link>
-      </div>
+        </span>
+      </nav>
     </div>
   );
 };

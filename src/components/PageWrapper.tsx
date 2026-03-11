@@ -6,15 +6,15 @@ import Topbar from '@/components/layouts/topbar';
 import Customizer from '@/components/layouts/customizer';
 import { useAuth, useUser } from '@clerk/clerk-react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { LuLoader } from 'react-icons/lu';
 import { setupAxiosInterceptors } from '@/lib/axios';
+import FetchLoader from './FetchLoader';
 
 const PageWrapper = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const { isLoaded, isSignedIn, user } = useUser();
   const navigate = useNavigate();
   const location = useLocation();
-    const { getToken } = useAuth();
+  const { getToken } = useAuth();
 
   useEffect(() => {
     if (!isLoaded) return; // Wait until user is loaded
@@ -23,18 +23,13 @@ const PageWrapper = ({ children }: { children: ReactNode }) => {
       navigate('/', { state: { from: location.pathname }, replace: true });
     }
 
-
     setupAxiosInterceptors(getToken);
 
     setLoading(false);
   }, [isLoaded, isSignedIn, user, navigate, location]);
 
   if (loading) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center bg-white/40 backdrop-blur-sm z-50">
-        <LuLoader className="animate-spin text-4xl text-indigo-600" />
-      </div>
-    );
+    return <FetchLoader title={"Wait a moment!"} />;
   }
 
   return (
