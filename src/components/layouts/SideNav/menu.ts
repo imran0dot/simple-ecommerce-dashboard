@@ -1,5 +1,5 @@
 import type { IconType } from 'react-icons/lib';
-import { LuGrid2X2, LuImage, LuListPlus, LuPackage, LuShieldCheck } from 'react-icons/lu';
+import { LuBox, LuGrid2X2, LuImage, LuListPlus, LuPackage, LuShieldCheck } from 'react-icons/lu';
 
 export type MenuItemType = {
   key: string;
@@ -37,6 +37,12 @@ export const menuItemsData: MenuItemType[] = [
     label: 'Category',
     href: '/category',
     icon: LuListPlus,
+  },
+  {
+    key: 'Brand',
+    label: 'Brand',
+    href: '/brand',
+    icon: LuBox,
   },
   { key: 'Media', label: 'Media', href: '/media', icon: LuImage },
 ];

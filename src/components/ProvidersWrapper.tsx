@@ -1,6 +1,6 @@
 import React from 'react';
 import { ClerkProvider } from '@clerk/clerk-react';
-
+import { Toaster } from 'sonner';
 import LayoutProvider from '@/context/useLayoutContext';
 import { Provider } from 'react-redux';
 import { store } from '@/redux/store';
@@ -17,6 +17,8 @@ const ProvidersWrapper = ({ children }: { children: React.ReactNode }) => {
           <LayoutProvider>{children}</LayoutProvider>
         </ClerkProvider>
       </Provider>
+
+      <Toaster />
     </>
   );
 };

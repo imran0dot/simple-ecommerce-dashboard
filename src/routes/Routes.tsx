@@ -10,10 +10,11 @@ const ProductList = lazy(() => import('@/app/pages/product-list'));
 const ProductOverview = lazy(() => import('@/app/pages/product-overview'));
 const Sellers = lazy(() => import('@/app/pages/sellers'));
 const Category = lazy(() => import('@/app/pages/category'));
+const Brand = lazy(() => import('@/app/pages/brand'));
 const Media = lazy(() => import('@/app/pages/media'));
 
 // dashboardcategory
-const Ecommerce = lazy(() => import('@/app/(admin)/(dashboards)/index'));
+const Ecommerce = lazy(() => import('@/app/index/index'));
 //Other
 
 const Error404 = lazy(() => import('@/app/pages/login/404'));
@@ -31,7 +32,8 @@ export const layoutsRoutes = [
   { path: '/product-overview', name: 'ProductOverview', element: <ProductOverview /> },
   { path: '/sellers', name: 'Sellers', element: <Sellers /> },
   { path: '/category', name: 'Category', element: <Category /> },
-  {path: '/media', name: 'Media', element: <Media />}
+  { path: '/brand', name: 'Brand', element: <Brand /> },
+  { path: '/media', name: 'Media', element: <Media /> },
 ];
 
 export const singlePageRoutes = [
