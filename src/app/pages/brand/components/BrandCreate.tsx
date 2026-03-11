@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 
 const CategoryCreate: React.FC<BrandCreateProps> = ({ setPage }) => {
   const [loading, setLoading] = useState(false);
-  const [image, setImage] = useState<string | null>(null);
+  const [image, setImage] = useState<string>('');
   const [isImageModal, setIsImageModal] = useState(false);
   const [createBrand] = useCreateMutation();
   const {
@@ -22,11 +22,11 @@ const CategoryCreate: React.FC<BrandCreateProps> = ({ setPage }) => {
     formState: { errors },
   } = useForm<BrandFormInputs>({
     defaultValues: {
-      name: 'test',
-      description: 'test',
+      name: '',
+      description: '',
       isLive: true,
       imageUrl: '',
-      slug: 'test',
+      slug: '',
     },
   });
 
@@ -40,7 +40,7 @@ const CategoryCreate: React.FC<BrandCreateProps> = ({ setPage }) => {
 
   const onCancelImageModal = () => {
     setIsImageModal(false);
-    setImage(null);
+    setImage('');
   };
 
   // Slug Generate
@@ -52,19 +52,17 @@ const CategoryCreate: React.FC<BrandCreateProps> = ({ setPage }) => {
 
   const onSubmit = async (data: BrandFormInputs) => {
     setLoading(true);
-    console.log('===========Set Loading true');
     try {
       const finalData = {
         ...data,
         imageUrl: image,
       };
-      console.log('===========Sending to API');
+
       const response = await createBrand(finalData).unwrap();
-      console.log('=========== Response');
-      console.log(response);
-      console.log('=========== Go Back Page');
-      setPage(prev => ({ ...prev, action: '' }));
-      toast.success('Success!');
+      if (response.data.createdAt) {
+        setPage(prev => ({ ...prev, action: '' }));
+        toast.success('Success!');
+      }
     } catch (error) {
       toast.error('Error!');
       console.error('Failed to create category:', error);
@@ -123,10 +121,7 @@ const CategoryCreate: React.FC<BrandCreateProps> = ({ setPage }) => {
                 <label className="inline-block mb-2 text-sm font-medium text-default-800">
                   Status
                 </label>
-                <select
-                  className="form-input"
-                  {...register('isLive', { setValueAs: value => value === 'true' })}
-                >
+                <select className="form-input" {...register('isLive')}>
                   <option value="true">Live / Published</option>
                   <option value="false">Hidden / Draft</option>
                 </select>
@@ -152,7 +147,7 @@ const CategoryCreate: React.FC<BrandCreateProps> = ({ setPage }) => {
                         {/* Glossy Overlay on Hover */}
                         <div className="absolute inset-0 flex flex-col items-center justify-center transition-opacity duration-300 bg-black/20 dark:bg-black/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100">
                           <button
-                            onClick={() => setImage(null)}
+                            onClick={() => setImage('')}
                             className="px-4 py-2 text-sm font-semibold text-white transition-transform duration-200 bg-red-500/80 rounded-full hover:bg-red-600 hover:scale-110 shadow-lg backdrop-blur-md"
                           >
                             Remove Photo

@@ -6,19 +6,19 @@ const Tr: React.FC<{
   tableData: {
     name: string;
     key: string;
-    element?: (x: any) => React.ReactNode | string;
+    element?: (x: any, i: string | number) => React.ReactNode | string;
   }[];
   rowData: any;
 }> = ({ rowData, tableData }) => {
   return (
     <tr className="text-default-800 hover:bg-default-50 transition-all">
-      {tableData.map(item => {
+      {tableData.map((item, index) => {
         switch (item.key) {
           // status data show
           case 'isLive':
           case 'status':
             return (
-              <td className="px-4 py-3 whitespace-nowrap">
+              <td key={index} className="px-4 py-3 whitespace-nowrap">
                 <span
                   className={`inline-flex items-center gap-1 py-0.5 px-2.5 rounded-full text-xs font-medium ${rowData[item.key] ? 'bg-success/15 text-success' : 'bg-warning/15 text-warning'}`}
                 >
@@ -35,7 +35,7 @@ const Tr: React.FC<{
           case 'imageUrl':
           case 'image':
             return (
-              <td className="px-4 py-3">
+              <td key={index} className="px-4 py-3">
                 <img
                   src={rowData[item.key] || '/placeholder.png'}
                   alt={rowData[item.name]}
@@ -49,17 +49,17 @@ const Tr: React.FC<{
           case 'deletedAt':
           case 'updatedAt':
             return (
-              <td className="px-4 py-3 whitespace-nowrap text-sm text-default-500">
+              <td key={index} className="px-4 py-3 whitespace-nowrap text-sm text-default-500">
                 {DateFormatter.toDateTime(rowData[item.key])}
               </td>
             );
 
           default:
             if (item.element) {
-              return item.element(rowData);
+              return item.element(rowData, index);
             }
             return (
-              <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
+              <td key={index} className="px-4 py-3 whitespace-nowrap text-sm font-medium">
                 {rowData[item.key]}
               </td>
             );

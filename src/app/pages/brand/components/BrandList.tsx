@@ -56,8 +56,8 @@ const brandTableRow = [
     key: 'action',
     name: 'ACTION',
     toolTip: 'action',
-    element: (row: any) => (
-      <td className="px-4 py-3 text-end">
+    element: (row: any, index: string | number) => (
+      <td key={index} className="px-4 py-3 text-end">
         <div className="flex items-center justify-end gap-2">
           <button
             onClick={() => console.log(row)}
@@ -126,9 +126,6 @@ const List: React.FC<BrandListProps> = ({ setPage }) => {
   if (isLoading || isRefreshing) {
     return <FetchLoader />;
   }
-
-  console.log('========= Meta');
-  console.log(meta);
 
   if (isError) {
     return (
