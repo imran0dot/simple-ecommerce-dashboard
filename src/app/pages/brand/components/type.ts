@@ -14,6 +14,7 @@ export type BrandCreateProps = {
       action: string;
     }>
   >;
+  initialData?: any;
 };
 
 export interface PaginationMeta {

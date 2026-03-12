@@ -69,7 +69,7 @@ const List: React.FC<BrandListProps> = ({ setPage }) => {
         <td key={index} className="px-4 py-3 text-end">
           <div className="flex items-center justify-end gap-2">
             <button
-              onClick={() => console.log(row)}
+              onClick={() => setPage({ data: row, action: 'update' })}
               className="flex size-8 items-center justify-center rounded-md bg-info/10 text-info hover:bg-info hover:text-white transition-all"
             >
               <LuSquarePen size={16} />
