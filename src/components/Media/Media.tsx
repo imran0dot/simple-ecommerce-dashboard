@@ -4,7 +4,7 @@ import { LuImage, LuUpload } from 'react-icons/lu';
 import MediaList from './MediaList';
 import MediaUpload from './MediaUpload';
 const MediaManager: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'upload' | 'list'>('upload');
+  const [activeTab, setActiveTab] = useState<'upload' | 'list' | 'select'>('upload');
 
   return (
     <main className="space-y-6">

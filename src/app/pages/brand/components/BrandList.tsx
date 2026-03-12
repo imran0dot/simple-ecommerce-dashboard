@@ -9,6 +9,8 @@ import { useDeleteMutation, useGetQuery } from '@/redux/services/brand';
 import type { BrandListProps, PaginationMeta } from './type';
 import Th from '@/components/table/Th';
 import Tr from '@/components/table/Tr';
+import ActionModal from '@/components/modal/ActionModal';
+import { toast } from 'sonner';
 
 export type Brand = {
   _id: string;
@@ -21,74 +23,76 @@ export type Brand = {
   createdAt: string;
 };
 
-const brandTableRow = [
-  {
-    key: 'name',
-    name: 'T.NAME',
-    toolTip: 'TABLE NAME',
-  },
-  {
-    key: 'imageUrl',
-    name: 'B.IMG',
-    toolTip: 'Brand Image',
-  },
-  {
-    key: 'slug',
-    name: 'Slug',
-    toolTip: 'Slug',
-  },
-  {
-    key: 'isLive',
-    name: 'STATUS',
-    toolTip: 'status',
-  },
-  {
-    key: 'createdAt',
-    name: 'C.DATE',
-    toolTip: 'Created Date',
-  },
-  {
-    key: 'updatedAt',
-    name: 'U.Date',
-    toolTip: 'Updated Date',
-  },
-  {
-    key: 'action',
-    name: 'ACTION',
-    toolTip: 'action',
-    element: (row: any, index: string | number) => (
-      <td key={index} className="px-4 py-3 text-end">
-        <div className="flex items-center justify-end gap-2">
-          <button
-            onClick={() => console.log(row)}
-            className="flex size-8 items-center justify-center rounded-md bg-info/10 text-info hover:bg-info hover:text-white transition-all"
-          >
-            <LuSquarePen size={16} />
-          </button>
-          <button
-            onClick={() => console.log(row)}
-            className="flex size-8 items-center justify-center rounded-md bg-danger/10 text-danger hover:bg-danger hover:text-white transition-all"
-          >
-            <LuTrash2 size={16} />
-          </button>
-        </div>
-      </td>
-    ),
-  },
-];
-
 const List: React.FC<BrandListProps> = ({ setPage }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [meta, setMeta] = useState<PaginationMeta>({});
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isDeletingItem, setIsDeletingItem] = useState<any | null>(null);
+
+  const brandTableRow = [
+    {
+      key: 'name',
+      name: 'T.NAME',
+      toolTip: 'TABLE NAME',
+    },
+    {
+      key: 'imageUrl',
+      name: 'B.IMG',
+      toolTip: 'Brand Image',
+    },
+    {
+      key: 'slug',
+      name: 'Slug',
+      toolTip: 'Slug',
+    },
+    {
+      key: 'isLive',
+      name: 'STATUS',
+      toolTip: 'status',
+    },
+    {
+      key: 'createdAt',
+      name: 'C.DATE',
+      toolTip: 'Created Date',
+    },
+    {
+      key: 'updatedAt',
+      name: 'U.Date',
+      toolTip: 'Updated Date',
+    },
+    {
+      key: 'action',
+      name: 'ACTION',
+      toolTip: 'action',
+      element: (row: any, index: string | number) => (
+        <td key={index} className="px-4 py-3 text-end">
+          <div className="flex items-center justify-end gap-2">
+            <button
+              onClick={() => console.log(row)}
+              className="flex size-8 items-center justify-center rounded-md bg-info/10 text-info hover:bg-info hover:text-white transition-all"
+            >
+              <LuSquarePen size={16} />
+            </button>
+            <button
+              onClick={() => setIsDeletingItem(row)}
+              className="flex size-8 items-center justify-center rounded-md bg-danger/10 text-danger hover:bg-danger hover:text-white transition-all"
+            >
+              <LuTrash2 size={16} />
+            </button>
+          </div>
+        </td>
+      ),
+    },
+  ];
 
   // RTK Query hooks
   const { data, isLoading, isError, error, refetch } = useGetQuery({
     page: currentPage,
     limit: 10,
   });
-  const [deleteBrand] = useDeleteMutation();
+
+  const [deleteBrand, { isLoading: isDeleting }] = useDeleteMutation();
 
   useEffect(() => {
     if (data?.data) {
@@ -111,15 +115,14 @@ const List: React.FC<BrandListProps> = ({ setPage }) => {
   };
 
   const onDelete = async (id: string) => {
-    const isConfirmed = window.confirm('Are you sure you want to delete this item?');
-    if (isConfirmed) {
-      try {
-        await deleteBrand({ id }).unwrap();
-        window.alert('Successfully Deleted!');
-      } catch (err: any) {
-        console.error('Delete Error:', err);
-        window.alert(err?.data?.message || 'Something went wrong');
-      }
+    try {
+      await deleteBrand({ id }).unwrap();
+      toast.success('Successfully Deleted!');
+    } catch (err: any) {
+      console.error('Delete Error:', err);
+      toast.error('Something went wrong');
+    } finally {
+      setIsDeletingItem(null);
     }
   };
 
@@ -231,6 +234,17 @@ const List: React.FC<BrandListProps> = ({ setPage }) => {
           </div>
         </div>
       </div>
+
+      <ActionModal
+        isOpen={isDeletingItem ? true : false}
+        onCancel={() => setIsDeletingItem(null)}
+        onConfirm={() => onDelete(isDeletingItem._id)}
+        isLoading={isDeleting}
+        type="delete"
+        title="Delete Brand"
+        message="Are you sure you want to delete this brand? This action cannot be undone."
+        size="sm"
+      />
     </main>
   );
 };

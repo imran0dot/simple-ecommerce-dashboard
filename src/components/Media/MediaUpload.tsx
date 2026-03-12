@@ -4,10 +4,11 @@ import React, { useState, type DragEvent } from 'react';
 import { LuCheck, LuCloudUpload, LuLoader, LuX } from 'react-icons/lu';
 
 interface MediaUploadProps {
-  setActiveTab: React.Dispatch<React.SetStateAction<'upload' | 'list'>>;
+  setActiveTab: React.Dispatch<React.SetStateAction<'upload' | 'list' | 'select'>>;
+  redirectTo?: "list" | "select";
 }
 
-const MediaUpload: React.FC<MediaUploadProps> = ({ setActiveTab }) => {
+const MediaUpload: React.FC<MediaUploadProps> = ({ setActiveTab, redirectTo = "list" }) => {
   const [saving, setSaving] = useState(false);
   const [isDragging, setIsDragging] = useState(false); // Drag state track korar jonno
   const [previews, setPreviews] = useState<{ url: string; file: File }[]>([]);
@@ -66,7 +67,7 @@ const MediaUpload: React.FC<MediaUploadProps> = ({ setActiveTab }) => {
       await createMedia(formData).unwrap();
       window.alert('Upload Success!');
       setPreviews([]);
-      setActiveTab('list');
+      setActiveTab(redirectTo);
     } catch (error: any) {
       console.error('Upload Error:', error);
     } finally {

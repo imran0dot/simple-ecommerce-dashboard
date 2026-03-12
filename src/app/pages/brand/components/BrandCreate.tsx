@@ -2,12 +2,11 @@ import { useForm } from 'react-hook-form';
 import PageBreadcrumb from '@/components/PageBreadcrumb';
 import { useState } from 'react';
 import { LuLoader } from 'react-icons/lu';
-import Modal from '@/components/modal';
-import MediaSelect from '@/components/Media/MediaSelect';
 import type { BrandCreateProps, BrandFormInputs } from './type';
 import { slugify } from '@/utils/slugify';
 import { useCreateMutation } from '@/redux/services/brand';
 import { toast } from 'sonner';
+import UploadImageModal from '@/components/modal/UploadImage';
 
 const CategoryCreate: React.FC<BrandCreateProps> = ({ setPage }) => {
   const [loading, setLoading] = useState(false);
@@ -226,40 +225,20 @@ const CategoryCreate: React.FC<BrandCreateProps> = ({ setPage }) => {
         </div>
       </div>
 
-      <Modal
+      <UploadImageModal
         isOpen={isImageModal}
+        onConfirm={onConfirmSelection}
         onCancel={onCancelImageModal}
-        header="Select Media"
+        isLoading={false}
+        selectionMode={'single'}
+        onSelectionChange={images => {
+          if (images && images.length > 0) {
+            setImage(images[0]);
+          }
+        }}
+        title="Select Media"
         size="lg"
-        footer={
-          <div className="flex justify-end gap-3">
-            <button
-              onClick={onCancelImageModal}
-              className="btn bg-primary/10 text-primary hover:bg-primary hover:text-white"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={() => onConfirmSelection()}
-              disabled={!image}
-              className="btn bg-primary text-white"
-            >
-              Confirm Selection
-            </button>
-          </div>
-        }
-      >
-        <div className="min-h-[400px]">
-          <MediaSelect
-            selectionMode="single"
-            onSelectionChange={images => {
-              if (images && images.length > 0) {
-                setImage(images[0]);
-              }
-            }}
-          />
-        </div>
-      </Modal>
+      />
     </main>
   );
 };
