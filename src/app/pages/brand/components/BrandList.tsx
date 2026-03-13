@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { LuChevronLeft, LuChevronRight, LuPlus, LuSquarePen, LuTrash2 } from 'react-icons/lu';
 import PageBreadcrumb from '@/components/PageBreadcrumb';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { TbReload } from 'react-icons/tb';
 import FetchLoader from '@/components/FetchLoader';
 import { useDeleteMutation, useGetQuery } from '@/redux/services/brand';
@@ -29,6 +29,7 @@ const List: React.FC<BrandListProps> = ({ setPage }) => {
   const [meta, setMeta] = useState<PaginationMeta>({});
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isDeletingItem, setIsDeletingItem] = useState<any | null>(null);
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
   const brandTableRow = [
     {
@@ -103,6 +104,20 @@ const List: React.FC<BrandListProps> = ({ setPage }) => {
     }
   }, [data]);
 
+  // handle on all select
+  const onAllSelect = useCallback(() => {
+    const brandsIds = brands.map(b => b._id);
+    setSelectedItems(prev => {
+      return prev.length === brands.length ? [] : [...brandsIds];
+    });
+  }, [brands]);
+
+  const onSingleSelect = useCallback((id: string) => {
+    setSelectedItems(prev => {
+      return prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id];
+    });
+  }, []);
+
   const onRefetch = async () => {
     setIsRefreshing(true);
     try {
@@ -126,6 +141,7 @@ const List: React.FC<BrandListProps> = ({ setPage }) => {
     }
   };
 
+  // ========== Node Renders From Here ==========
   if (isLoading || isRefreshing) {
     return <FetchLoader />;
   }
@@ -173,12 +189,22 @@ const List: React.FC<BrandListProps> = ({ setPage }) => {
             <div className="min-w-full inline-block align-middle">
               <div className="overflow-hidden">
                 <table className="min-w-full divide-y divide-default-200">
-                  <Th data={brandTableRow} />
+                  <Th
+                    data={brandTableRow}
+                    onAllSelect={onAllSelect}
+                    isAllChecked={brands.length === selectedItems.length}
+                  />
 
                   <tbody className="divide-y divide-default-200">
                     {brands.length > 0 ? (
-                      brands.map((brands, index) => (
-                        <Tr key={index} rowData={brands} tableData={brandTableRow} />
+                      brands.map((data, index) => (
+                        <Tr
+                          key={index}
+                          rowData={data}
+                          tableData={brandTableRow}
+                          onSelect={onSingleSelect}
+                          isChecked={selectedItems.includes(data._id)}
+                        />
                       ))
                     ) : (
                       <tr>

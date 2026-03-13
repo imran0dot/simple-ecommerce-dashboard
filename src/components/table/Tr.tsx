@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { DateFormatter } from '@/utils/DateFormate';
-import React from 'react';
+import React, { memo } from 'react';
 
 const Tr: React.FC<{
   tableData: {
@@ -9,9 +9,21 @@ const Tr: React.FC<{
     element?: (x: any, i: string | number) => React.ReactNode | string;
   }[];
   rowData: any;
-}> = ({ rowData, tableData }) => {
+  isChecked: boolean;
+  onSelect: (id: string) => void;
+}> = ({ rowData, tableData, onSelect, isChecked }) => {
   return (
     <tr className="text-default-800 hover:bg-default-50 transition-all">
+      <td className="px-4 py-3 whitespace-nowrap">
+        <input
+          id="checkboxSoft1"
+          className="form-checkbox size-4 !border-primary/20 !bg-primary/10 checked:!bg-primary"
+          type="checkbox"
+          value=""
+          checked={isChecked}
+          onClick={() => onSelect(rowData._id)}
+        ></input>
+      </td>
       {tableData.map((item, index) => {
         switch (item.key) {
           // status data show
@@ -69,4 +81,4 @@ const Tr: React.FC<{
   );
 };
 
-export default Tr;
+export default memo(Tr);
