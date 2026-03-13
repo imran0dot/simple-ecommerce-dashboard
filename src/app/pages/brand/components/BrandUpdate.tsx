@@ -5,6 +5,7 @@ import { useUpdateMutation } from '@/redux/services/brand';
 import { useState, useEffect } from 'react';
 import { LuLoader } from 'react-icons/lu';
 import UploadImageModal from '@/components/modal/UploadImage';
+import { toast } from 'sonner';
 
 type BrandFormInputs = {
   name: string;
@@ -34,7 +35,7 @@ const BrandUpdate: React.FC<BrandUpdateProps> = ({ setPage, initialData }) => {
     register,
     handleSubmit,
     reset,
-    formState: { errors },
+    formState: { errors, dirtyFields },
   } = useForm<BrandFormInputs>({
     defaultValues: {
       name: initialData?.name || '',
@@ -47,13 +48,13 @@ const BrandUpdate: React.FC<BrandUpdateProps> = ({ setPage, initialData }) => {
 
   useEffect(() => {
     if (initialData) {
-      reset({
-        name: initialData.name,
-        slug: initialData.slug,
-        description: initialData.description,
-        isLive: initialData.isLive,
-        imageUrl: initialData?.imageUrl || '',
-      });
+      // reset({
+      //   name: initialData.name,
+      //   slug: initialData.slug,
+      //   description: initialData.description,
+      //   isLive: initialData.isLive,
+      //   imageUrl: initialData?.imageUrl || '',
+      // });
 
       setImage(initialData?.imageUrl || '');
     }
@@ -68,23 +69,42 @@ const BrandUpdate: React.FC<BrandUpdateProps> = ({ setPage, initialData }) => {
     setImage('');
   };
 
-  const onSubmit = async (data: BrandFormInputs) => {
-    setLoading(true);
+ const onSubmit = async (data: BrandFormInputs) => {
+  setLoading(true);
 
-    try {
-      await updateBrand({
-        id: initialData._id,
-        ...data,
-        imageUrl: image,
-      }).unwrap();
+  const changedData = (Object.keys(dirtyFields) as Array<keyof BrandFormInputs>).reduce<Record<string, any>>(
+    (acc, key) => {
+      acc[key] = data[key];
+      return acc;
+    },
+    {}
+  );
 
-      setPage({ data: null, action: '' });
-    } catch (error) {
-      console.error('============== UPDATE FAILED:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const isImageChanged = image !== initialData?.imageUrl;
+  if (isImageChanged) {
+    changedData.imageUrl = image;
+  }
+
+  if (Object.keys(changedData).length === 0) {
+    toast.info('No changes detected');
+    setLoading(false);
+    return;
+  }
+
+  try {
+    await updateBrand({
+      id: initialData._id,
+      ...changedData, 
+    }).unwrap();
+    toast.success('Brand updated successfully');
+    setPage({ data: null, action: '' });
+  } catch (err: any) {
+    console.error('============== UPDATE FAILED:', err);
+    toast.error(err?.data?.message || 'Failed to update brand');
+  } finally {
+    setLoading(false);
+  }
+};
 
   const onBack = () => {
     setPage(prev => ({ ...prev, action: '' }));
