@@ -1,6 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { LuChevronLeft, LuChevronRight, LuPlus, LuSquarePen, LuTrash2 } from 'react-icons/lu';
+import {
+  LuChevronLeft,
+  LuChevronRight,
+  LuDownload,
+  LuPlus,
+  LuSquarePen,
+  LuTrash2,
+} from 'react-icons/lu';
 import PageBreadcrumb from '@/components/PageBreadcrumb';
 import { useCallback, useEffect, useState } from 'react';
 import { TbReload } from 'react-icons/tb';
@@ -11,6 +18,8 @@ import Th from '@/components/table/Th';
 import Tr from '@/components/table/Tr';
 import ActionModal from '@/components/modal/ActionModal';
 import { toast } from 'sonner';
+import ToggleMenu, { type IToggleMenu } from '@/components/ToggleMenu';
+import { TrashIcon } from 'lucide-react';
 
 export type Brand = {
   _id: string;
@@ -28,7 +37,7 @@ const List: React.FC<BrandListProps> = ({ setPage }) => {
   const [brands, setBrands] = useState<Brand[]>([]);
   const [meta, setMeta] = useState<PaginationMeta>({});
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isDeletingItem, setIsDeletingItem] = useState<any | null>(null);
+  const [deletingItem, setDeletingItem] = useState<any | null>(null);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
   const brandTableRow = [
@@ -76,7 +85,7 @@ const List: React.FC<BrandListProps> = ({ setPage }) => {
               <LuSquarePen size={16} />
             </button>
             <button
-              onClick={() => setIsDeletingItem(row)}
+              onClick={() => setDeletingItem(row)}
               className="flex size-8 items-center justify-center rounded-md bg-danger/10 text-danger hover:bg-danger hover:text-white transition-all"
             >
               <LuTrash2 size={16} />
@@ -84,6 +93,17 @@ const List: React.FC<BrandListProps> = ({ setPage }) => {
           </div>
         </td>
       ),
+    },
+  ];
+
+  const myMenus: IToggleMenu[] = [
+    {
+      key: 'trash',
+      label: 'Move to Trash',
+      type: 'danger',
+      icon: <TrashIcon size={16} />,
+      onAction: () => onToggleMenuClick('deleteAll'),
+      isDisable: selectedItems.length < 1,
     },
   ];
 
@@ -137,7 +157,21 @@ const List: React.FC<BrandListProps> = ({ setPage }) => {
       console.error('Delete Error:', err);
       toast.error('Something went wrong');
     } finally {
-      setIsDeletingItem(null);
+      setDeletingItem(null);
+    }
+  };
+
+  // ======== Toggle Menu Handler
+  const onToggleMenuClick = (type: string) => {
+    switch (type) {
+      case 'deleteAll':
+        if (confirm('Are You Sure To Delete Selected Data ')) {
+          setSelectedItems([]);
+        }
+        break;
+
+      default:
+        break;
     }
   };
 
@@ -161,30 +195,33 @@ const List: React.FC<BrandListProps> = ({ setPage }) => {
     <main>
       <PageBreadcrumb title="Brand List" />
 
-      <div className="grid grid-cols-1 gap-5 mb-5">
+      {/* ======= Toggle Menu ====== */}
+      <div className="flex  justify-between items-center mt-5">
+        <ToggleMenu menus={myMenus} />
+
+        {/* // ======== Reload and add new btn  */}
+        <div className="flex justify-center items-center">
+          <button
+            onClick={onRefetch}
+            className={`rounded-full flex btn hover:bg-default-100 transition-all ${isRefreshing ? 'animate-spin ' : ''}`}
+            title="Reload Data"
+          >
+            Reload
+            <TbReload size={20} className="text-default-600" />
+          </button>
+
+          <button
+            onClick={() => setPage({ data: null, action: 'create' })}
+            className="btn btn-sm bg-primary text-white flex items-center gap-1"
+          >
+            <LuPlus size={18} />
+            Add New
+          </button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-5 my-5">
         <div className="card">
-          <div className="card-header flex justify-between items-center bg-transparent border-b border-default-200 py-4">
-            <h4 className="card-title text-default-900">Brand</h4>
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={onRefetch}
-                className={`p-2 rounded-full hover:bg-default-100 transition-all ${isRefreshing ? 'animate-spin' : ''}`}
-                title="Reload Data"
-              >
-                <TbReload size={20} className="text-default-600" />
-              </button>
-
-              <button
-                onClick={() => setPage({ data: null, action: 'create' })}
-                className="btn btn-sm bg-primary text-white flex items-center gap-1"
-              >
-                <LuPlus size={18} />
-                Add New
-              </button>
-            </div>
-          </div>
-
           <div className="overflow-x-auto">
             <div className="min-w-full inline-block align-middle">
               <div className="overflow-hidden">
@@ -262,9 +299,9 @@ const List: React.FC<BrandListProps> = ({ setPage }) => {
       </div>
 
       <ActionModal
-        isOpen={isDeletingItem ? true : false}
-        onCancel={() => setIsDeletingItem(null)}
-        onConfirm={() => onDelete(isDeletingItem._id)}
+        isOpen={deletingItem ? true : false}
+        onCancel={() => setDeletingItem(null)}
+        onConfirm={() => onDelete(deletingItem._id)}
         isLoading={isDeleting}
         type="delete"
         title="Delete Brand"
